@@ -5,7 +5,6 @@ Sets up structured logging with file and console output
 
 import logging
 import os
-from typing import Any
 from src.config import LOG_LEVEL, LOG_FILE, DEBUG_MODE
 
 # Create logs directory if it doesn't exist

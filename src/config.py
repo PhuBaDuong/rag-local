@@ -4,7 +4,6 @@ Loads settings from environment variables with sensible defaults
 """
 
 import os
-from pathlib import Path
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -24,6 +23,12 @@ OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
 OLLAMA_EMBEDDING_MODEL = os.getenv("OLLAMA_EMBEDDING_MODEL", "nomic-embed-text")
 OLLAMA_LLM_MODEL = os.getenv("OLLAMA_LLM_MODEL", "qwen3.5:9b")
 OLLAMA_TEMPERATURE = float(os.getenv("OLLAMA_TEMPERATURE", "0.2"))
+
+# ============================================
+# VISION MODEL CONFIGURATION
+# ============================================
+OLLAMA_VISION_MODEL = os.getenv("OLLAMA_VISION_MODEL", "llava:7b")
+VISION_TIMEOUT = int(os.getenv("VISION_TIMEOUT", "120"))  # Vision model timeout (seconds)
 
 # ============================================
 # DOCUMENT INGESTION CONFIGURATION
@@ -47,7 +52,6 @@ LOG_FILE = os.getenv("LOG_FILE", "logs/rag_system.log")
 # ============================================
 # APPLICATION CONFIGURATION
 # ============================================
-SKIP_INGESTION = os.getenv("SKIP_INGESTION", "false").lower() == "true"
 DEBUG_MODE = os.getenv("DEBUG_MODE", "false").lower() == "true"
 
 # ============================================
@@ -55,7 +59,6 @@ DEBUG_MODE = os.getenv("DEBUG_MODE", "false").lower() == "true"
 # ============================================
 EMBEDDING_TIMEOUT = int(os.getenv("EMBEDDING_TIMEOUT", "30"))      # Embedding API timeout (seconds)
 LLM_TIMEOUT = int(os.getenv("LLM_TIMEOUT", "120"))                 # LLM API timeout (seconds)
-DATABASE_TIMEOUT = int(os.getenv("DATABASE_TIMEOUT", "30"))        # Database query timeout (seconds)
 RETRY_DELAY = int(os.getenv("RETRY_DELAY", "1"))                   # Delay between retries (seconds)
 
 # ============================================

@@ -29,3 +29,13 @@ class ValidationError(RAGException):
 class RetrievalError(RAGException):
     """Exception raised during document retrieval."""
     pass
+
+
+class ProcessingError(RAGException):
+    """Exception raised during content processing."""
+    pass
+
+
+class VisionError(RAGException):
+    """Exception raised during vision model operations."""
+    pass

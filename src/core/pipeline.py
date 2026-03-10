@@ -1,9 +1,6 @@
 """Core RAG pipeline logic."""
 
 from typing import Tuple
-from src.models.schemas import Question, Answer, SearchResult
-from src.utils.exceptions import ValidationError, RAGException
-from src.embedding.ollama import embed_text
 from src.retrieval.vector_search import retrieve
 from src.llm.ollama import generate_answer
 from src.config import MAX_QUESTION_LENGTH, MIN_QUESTION_LENGTH

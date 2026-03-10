@@ -43,7 +43,7 @@ This approach improves accuracy and allows the system to cite sources.
 ```
 rag-local/
 ├── main.py                      # Query interface (imports from src/)
-├── ingest.py                    # Standalone document ingestion script
+├── ingest.py                    # Multi-modal document ingestion script
 ├── docker-compose.yml           # Neo4j container setup
 ├── requirements.txt             # Python dependencies
 ├── .env                         # Environment variables
@@ -66,6 +66,17 @@ rag-local/
 │   ├── llm/                     # LLM providers
 │   │   ├── base.py              # Abstract LLMBase class
 │   │   └── ollama.py            # OllamaLLM implementation
+│   │
+│   ├── vision/                  # Vision model providers
+│   │   ├── base.py              # Abstract VisionModelBase class
+│   │   └── ollama.py            # OllamaVisionModel (LLaVA) implementation
+│   │
+│   ├── processing/              # Multi-modal content processing
+│   │   ├── base.py              # ProcessorBase, ProcessedChunk, ContentType
+│   │   ├── router.py            # ContentRouter (MIME detection & routing)
+│   │   ├── text.py              # Text file processor
+│   │   ├── image.py             # Image processor (via vision model)
+│   │   └── pdf.py               # PDF processor (text + image extraction)
 │   │
 │   ├── retrieval/               # Search & storage
 │   │   ├── database.py          # Neo4j driver & index management
@@ -236,14 +247,9 @@ Once the system is running, you'll:
   - `create_vector_index(index_name) -> bool` - Idempotent creation
 
 ### `src/retrieval/ingestion.py`
-- **`chunk_text(text, chunk_size, overlap) -> List[str]`** - Character-based chunking
-- **`store_chunk(tx, chunk_id, text, embedding)`** - Neo4j storage
-- **`ingest_book(book_text)`** - Full pipeline:
-  - Verifies database connection
-  - Chunks text
-  - Creates vector index (if needed)
-  - Generates embeddings
-  - Stores in Neo4j
+- **`store_processed_chunk(tx, chunk_id, chunk)`** - Store a ProcessedChunk in Neo4j
+- **`ingest_file(file_path, start_id) -> int`** - Ingest a single file via ContentRouter
+- **`ingest_directory(directory, start_id) -> int`** - Ingest all supported files in a directory
 
 ### `src/retrieval/vector_search.py`
 - **`retrieve(question: str, top_k: int) -> List[Tuple[str, float]]`**
@@ -263,7 +269,8 @@ Data models with automatic validation:
 Centralized configuration from environment variables:
 - **Database:** NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD
 - **Ollama:** OLLAMA_BASE_URL, OLLAMA_EMBEDDING_MODEL, OLLAMA_LLM_MODEL
-- **Timeouts:** EMBEDDING_TIMEOUT (30s), LLM_TIMEOUT (120s), DATABASE_TIMEOUT (30s)
+- **Vision:** OLLAMA_VISION_MODEL, VISION_TIMEOUT (120s)
+- **Timeouts:** EMBEDDING_TIMEOUT (30s), LLM_TIMEOUT (120s)
 - **Validation:** MIN_QUESTION_LENGTH (3), MAX_QUESTION_LENGTH (1000)
 - **Ingestion:** CHUNK_SIZE (300), CHUNK_OVERLAP (200)
 
@@ -287,18 +294,20 @@ Custom exception hierarchy:
 ```
 ingest.py
     ↓
-Load document from DOCUMENT_PATH
+Load file/directory path from CLI args or DOCUMENT_PATH
     ↓
-ingest_book(text)
+ingest_file() / ingest_directory()
     ↓
-chunk_text() → splits into 300-char chunks with 200-char overlap
+ContentRouter → selects TextProcessor, ImageProcessor, or PDFProcessor
+    ↓
+Processor.process() → chunks content into ProcessedChunk objects
     ↓
 create_vector_index() → creates Neo4j vector index (idempotent)
     ↓
 for each chunk:
     embed_text() → OllamaEmbedder.embed() → Ollama API (3 retries)
         ↓
-    store_chunk() → Neo4j CREATE (Chunk nodes with embeddings)
+    store_processed_chunk() → Neo4j CREATE (Chunk nodes with embeddings)
     ↓
 ✅ Database ready for queries
 ```
@@ -438,9 +447,6 @@ MAX_QUESTION_LENGTH=1000
 LOG_LEVEL=INFO
 LOG_FILE=logs/rag_system.log
 DEBUG_MODE=false
-
-# Control
-SKIP_INGESTION=false
 ```
 
 See `.env.example` for complete template.

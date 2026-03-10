@@ -10,6 +10,11 @@ requests==2.31.0           # HTTP library for API calls
 # Configuration Management
 python-dotenv==1.0.0       # Load environment variables from .env files
 
+# Multi-Modal Processing
+pillow>=10.0.0             # Image handling and metadata extraction
+pymupdf>=1.23.0            # PDF text and image extraction (fitz)
+filetype>=1.2.0            # File type detection by content
+
 # Built-in modules (no install needed)
 # logging                    # Python built-in logging module
 # time                       # Python built-in for delays/retries

@@ -9,29 +9,32 @@ from unittest.mock import patch, MagicMock
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from src.retrieval.vector_search import retrieve
-from src.retrieval.ingestion import chunk_text
+from src.processing.text import TextProcessor
 
 
 class TestRetrieval(unittest.TestCase):
     """Test suite for retrieval functions."""
-    
+
+    def setUp(self):
+        self.processor = TextProcessor(chunk_size=300, chunk_overlap=200)
+
     def test_chunk_text_basic(self):
         """Test basic text chunking."""
         text = "a" * 1000
-        chunks = chunk_text(text, chunk_size=300, overlap=200)
+        chunks = self.processor._chunk_text(text)
         
         self.assertTrue(len(chunks) > 0)
         self.assertTrue(all(isinstance(c, str) for c in chunks))
     
     def test_chunk_text_empty(self):
         """Test chunking empty text."""
-        chunks = chunk_text("", chunk_size=300, overlap=200)
+        chunks = self.processor._chunk_text("")
         self.assertEqual(chunks, [])
     
     def test_chunk_text_small(self):
         """Test chunking small text."""
         text = "small"
-        chunks = chunk_text(text, chunk_size=300, overlap=200)
+        chunks = self.processor._chunk_text(text)
         self.assertEqual(len(chunks), 1)
         self.assertEqual(chunks[0], "small")
     

@@ -1,7 +1,16 @@
 """Data models and schemas for RAG system."""
 
-from typing import List, Tuple
-from dataclasses import dataclass
+from typing import List, Optional, Dict, Any
+from dataclasses import dataclass, field
+from enum import Enum
+
+
+class ContentTypeEnum(Enum):
+    """Content type enumeration for stored chunks."""
+    TEXT = "text"
+    IMAGE = "image"
+    PDF = "pdf"
+    UNKNOWN = "unknown"
 
 
 @dataclass
@@ -9,7 +18,10 @@ class SearchResult:
     """A search result containing chunk text and similarity score."""
     text: str
     score: float
-    
+    content_type: str = "text"
+    source_file: Optional[str] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
     def __post_init__(self):
         """Validate fields after initialization."""
         if not isinstance(self.text, str):
@@ -18,6 +30,45 @@ class SearchResult:
             raise TypeError("score must be a number")
         if not 0 <= self.score <= 1:
             raise ValueError("score must be between 0 and 1")
+        if not isinstance(self.content_type, str):
+            raise TypeError("content_type must be a string")
+
+
+@dataclass
+class StoredChunk:
+    """A chunk stored in the vector database with multi-modal support."""
+    id: int
+    text: str
+    embedding: List[float]
+    content_type: str = "text"
+    source_file: str = ""
+    mime_type: str = "text/plain"
+    chunk_index: int = 0
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+    def __post_init__(self):
+        """Validate fields after initialization."""
+        if not isinstance(self.id, int):
+            raise TypeError("id must be an integer")
+        if not isinstance(self.text, str):
+            raise TypeError("text must be a string")
+        if not isinstance(self.embedding, list):
+            raise TypeError("embedding must be a list")
+        if not isinstance(self.content_type, str):
+            raise TypeError("content_type must be a string")
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for Neo4j storage."""
+        return {
+            "id": self.id,
+            "text": self.text,
+            "embedding": self.embedding,
+            "content_type": self.content_type,
+            "source_file": self.source_file,
+            "mime_type": self.mime_type,
+            "chunk_index": self.chunk_index,
+            "metadata": self.metadata,
+        }
 
 
 @dataclass

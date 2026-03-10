@@ -55,38 +55,3 @@ def retrieve(question: str, top_k: int = SEARCH_TOP_K) -> List[Tuple[str, float]
         logger.error(f"Error during retrieval: {str(e)}")
         raise
     
-    try:
-        # Chunk the text
-        chunks = chunk_text(book_text)
-        if not chunks:
-            logger.error("No chunks created from text")
-            return
-        
-        # Create vector index (if it doesn't exist)
-        logger.info(f"Ensuring vector index exists: {VECTOR_INDEX_NAME}")
-        if not create_vector_index(VECTOR_INDEX_NAME):
-            logger.error(f"Failed to create vector index: {VECTOR_INDEX_NAME}")
-            raise Exception(f"Cannot create vector index: {VECTOR_INDEX_NAME}")
-        logger.info(f"✅ Vector index ready: {VECTOR_INDEX_NAME}")
-        
-        # Ingest chunks
-        logger.info("Starting document ingestion...")
-        with driver.session() as session:
-            for i, chunk in enumerate(chunks):
-                try:
-                    logger.debug(f"Processing chunk {i + 1}/{len(chunks)}")
-                    embedding = embed_text(chunk)
-                    session.execute_write(store_chunk, i, chunk, embedding)
-                    
-                    if (i + 1) % 10 == 0:
-                        logger.info(f"Ingested {i + 1}/{len(chunks)} chunks")
-                        
-                except Exception as e:
-                    logger.error(f"Failed to ingest chunk {i}: {str(e)}")
-                    raise
-        
-        logger.info("✅ Document ingestion completed successfully")
-        
-    except Exception as e:
-        logger.error(f"Ingestion failed: {str(e)}")
-        raise
