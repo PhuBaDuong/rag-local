@@ -1,6 +1,6 @@
 """Step-back prompting strategy for improved retrieval."""
 
-from src.llm.ollama import get_llm
+from src.models.llm.ollama import get_llm
 from src.utils.exceptions import LLMError
 from src.logger_config import get_logger
 

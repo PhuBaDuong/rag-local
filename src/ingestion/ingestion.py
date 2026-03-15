@@ -6,11 +6,11 @@ from pathlib import Path
 from neo4j.exceptions import Neo4jError
 from typing import List, Any, Optional, Dict
 
-from src.embedding.ollama import embed_text
+from src.models.embedding.ollama import embed_text
 from src.config import NEO4J_URI, VECTOR_INDEX_NAME, CHUNKING_STRATEGY, PARENT_SPLIT_METHOD
 from src.logger_config import get_logger
-from src.retrieval.database import get_driver, create_vector_index
 from src.processing.base import ProcessedChunk, ChunkStrategy
+from src.db.database import get_driver, create_vector_index
 
 logger = get_logger("ingestion")
 

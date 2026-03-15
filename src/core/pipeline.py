@@ -2,7 +2,7 @@
 
 from typing import Tuple, List
 from src.retrieval.vector_search import retrieve
-from src.llm.ollama import get_llm
+from src.models.llm.ollama import get_llm
 from src.utils.exceptions import LLMError
 from src.core.stepback import generate_stepback
 from src.config import MAX_QUESTION_LENGTH, MIN_QUESTION_LENGTH

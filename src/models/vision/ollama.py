@@ -6,7 +6,7 @@ import time
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-from src.vision.base import VisionModelBase
+from src.models.vision.base import VisionModelBase
 from src.utils.exceptions import VisionError
 from src.config import OLLAMA_BASE_URL, OLLAMA_VISION_MODEL, VISION_TIMEOUT, RETRY_DELAY
 from src.logger_config import get_logger

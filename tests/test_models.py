@@ -7,7 +7,7 @@ import unittest
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from src.models.schemas import SearchResult, Question, Answer
+from src.schemas.schemas import SearchResult, Question, Answer
 
 
 class TestModels(unittest.TestCase):

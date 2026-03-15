@@ -13,7 +13,7 @@ from pathlib import Path
 # Add src to Python path to enable imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from src.retrieval.ingestion import ingest_file, ingest_directory
+from src.ingestion.ingestion import ingest_file, ingest_directory
 from src.config import DOCUMENT_PATH, CHUNKING_STRATEGY, PARENT_SPLIT_METHOD
 from src.logger_config import get_logger
 
@@ -73,7 +73,7 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python ingest.py                                              # Scan data/ folder with defaults
+  python ingest.py                                              # Scan resources/ folder with defaults
   python ingest.py --strategy parent_child --split-method title  # Parent-child with heading split
   python ingest.py --strategy parent_child --split-method tag    # Parent-child with HTML tag split
   python ingest.py --file image.png                             # Ingest single image
@@ -142,7 +142,7 @@ Examples:
                 return 1
             return ingest_single_file(file_path, strategy=strategy, split_method=split_method)
 
-        # Default: scan data/ folder
+        # Default: scan resources/ folder
         default_path = Path(DOCUMENT_PATH)
         if not default_path.exists():
             print(f"❌ Error: Default path not found: {DOCUMENT_PATH}")

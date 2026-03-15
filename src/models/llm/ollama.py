@@ -2,7 +2,7 @@
 
 import requests
 import time
-from src.llm.base import LLMBase
+from src.models.llm.base import LLMBase
 from src.utils.exceptions import LLMError
 from src.config import OLLAMA_BASE_URL, OLLAMA_LLM_MODEL, OLLAMA_TEMPERATURE, LLM_TIMEOUT, RETRY_DELAY
 from src.logger_config import get_logger

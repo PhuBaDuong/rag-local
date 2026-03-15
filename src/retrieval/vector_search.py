@@ -2,10 +2,10 @@
 
 from neo4j.exceptions import Neo4jError
 from typing import List, Tuple
-from src.embedding.ollama import embed_text
+from src.models.embedding.ollama import embed_text
 from src.config import VECTOR_INDEX_NAME, SEARCH_TOP_K
 from src.logger_config import get_logger
-from src.retrieval.database import get_driver
+from src.db.database import get_driver
 
 logger = get_logger("vector_search")
 

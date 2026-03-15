@@ -8,7 +8,7 @@ from src.processing.base import (
     ProcessorBase, ContentType, ProcessedChunk,
     ChunkStrategy, ParentSplitMethod,
 )
-from src.vision.ollama import get_vision_model
+from src.models.vision.ollama import get_vision_model
 from src.utils.exceptions import ProcessingError, VisionError
 from src.config import CHUNK_SIZE, CHUNK_OVERLAP, PARENT_CHUNK_SIZE, PARENT_CHUNK_OVERLAP
 from src.logger_config import get_logger

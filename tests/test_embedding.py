@@ -8,14 +8,14 @@ from unittest.mock import patch, MagicMock
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from src.embedding.ollama import OllamaEmbedder
+from src.models.embedding.ollama import OllamaEmbedder
 from src.utils.exceptions import EmbeddingError
 
 
 class TestEmbedding(unittest.TestCase):
     """Test suite for embedding functions."""
     
-    @patch('src.embedding.ollama.requests.post')
+    @patch('src.models.embedding.ollama.requests.post')
     def test_embed_text_success(self, mock_post):
         """Test successful embedding."""
         mock_response = MagicMock()

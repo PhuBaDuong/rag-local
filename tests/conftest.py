@@ -13,7 +13,7 @@ from unittest.mock import MagicMock, patch
 @pytest.fixture
 def mock_neo4j_driver():
     """Provide a mock Neo4j driver for testing."""
-    with patch('src.retrieval.database.GraphDatabase') as mock_db:
+    with patch('src.db.database.GraphDatabase') as mock_db:
         driver = MagicMock()
         mock_db.driver.return_value = driver
         yield driver
@@ -22,7 +22,7 @@ def mock_neo4j_driver():
 @pytest.fixture
 def mock_ollama_api():
     """Provide a mock Ollama API for testing."""
-    with patch('src.embedding.ollama.requests.post') as mock_post:
+    with patch('src.models.embedding.ollama.requests.post') as mock_post:
         yield mock_post
 
 

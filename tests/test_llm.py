@@ -8,7 +8,7 @@ from unittest.mock import patch, MagicMock
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from src.llm.ollama import OllamaLLM
+from src.models.llm.ollama import OllamaLLM
 from src.core.pipeline import generate_answer
 from src.utils.exceptions import LLMError
 
@@ -16,7 +16,7 @@ from src.utils.exceptions import LLMError
 class TestLLM(unittest.TestCase):
     """Test suite for LLM functions."""
     
-    @patch('src.llm.ollama.requests.post')
+    @patch('src.models.llm.ollama.requests.post')
     def test_generate_success(self, mock_post):
         """Test successful prompt generation."""
         mock_response = MagicMock()

@@ -35,7 +35,7 @@ VISION_TIMEOUT = int(os.getenv("VISION_TIMEOUT", "120"))  # Vision model timeout
 # ============================================
 CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", "300"))
 CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", "200"))
-DOCUMENT_PATH = os.getenv("DOCUMENT_PATH", "data/")
+DOCUMENT_PATH = os.getenv("DOCUMENT_PATH", "resources/")
 
 # ============================================
 # PARENT-CHILD CHUNKING CONFIGURATION

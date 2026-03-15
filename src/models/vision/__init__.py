@@ -1,7 +1,7 @@
 """Vision model module for image understanding."""
 
-from src.vision.base import VisionModelBase
-from src.vision.ollama import OllamaVisionModel, get_vision_model, describe_image
+from src.models.vision.base import VisionModelBase
+from src.models.vision.ollama import OllamaVisionModel, get_vision_model, describe_image
 
 __all__ = [
     "VisionModelBase",
@@ -9,4 +9,3 @@ __all__ = [
     "get_vision_model",
     "describe_image",
 ]
-

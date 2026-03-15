@@ -48,7 +48,7 @@ rag-local/
 ├── requirements.txt             # Python dependencies
 ├── .env                         # Environment variables
 ├── .env.example                 # Configuration template
-├── data/
+├── resources/
 │   └── history.txt              # Source document
 ├── logs/                        # Application logs
 │
@@ -57,19 +57,19 @@ rag-local/
 │   ├── logger_config.py         # Logging setup
 │   │
 │   ├── core/
-│   │   └── pipeline.py          # RAG pipeline orchestration
+│   │   ├── pipeline.py          # RAG pipeline orchestration
+│   │   └── stepback.py          # Step-back prompting
 │   │
-│   ├── embedding/               # Embedding providers
-│   │   ├── base.py              # Abstract EmbedderBase class
-│   │   └── ollama.py            # OllamaEmbedder implementation
-│   │
-│   ├── llm/                     # LLM providers
-│   │   ├── base.py              # Abstract LLMBase class
-│   │   └── ollama.py            # OllamaLLM implementation
-│   │
-│   ├── vision/                  # Vision model providers
-│   │   ├── base.py              # Abstract VisionModelBase class
-│   │   └── ollama.py            # OllamaVisionModel (LLaVA) implementation
+│   ├── models/                  # ML model providers
+│   │   ├── embedding/           # Text → vector
+│   │   │   ├── base.py          # Abstract EmbedderBase class
+│   │   │   └── ollama.py        # OllamaEmbedder implementation
+│   │   ├── llm/                 # Text → text
+│   │   │   ├── base.py          # Abstract LLMBase class
+│   │   │   └── ollama.py        # OllamaLLM implementation
+│   │   └── vision/              # Image → text
+│   │       ├── base.py          # Abstract VisionModelBase class
+│   │       └── ollama.py        # OllamaVisionModel (LLaVA) implementation
 │   │
 │   ├── processing/              # Multi-modal content processing
 │   │   ├── base.py              # ProcessorBase, ProcessedChunk, ContentType
@@ -78,13 +78,17 @@ rag-local/
 │   │   ├── image.py             # Image processor (via vision model)
 │   │   └── pdf.py               # PDF processor (text + image extraction)
 │   │
-│   ├── retrieval/               # Search & storage
-│   │   ├── database.py          # Neo4j driver & index management
-│   │   ├── ingestion.py         # Document chunking & storage
+│   ├── db/                      # Database infrastructure
+│   │   └── database.py          # Neo4j driver & index management
+│   │
+│   ├── ingestion/               # Document storage
+│   │   └── ingestion.py         # Document chunking & storage in Neo4j
+│   │
+│   ├── retrieval/               # Document retrieval
 │   │   └── vector_search.py     # Semantic similarity search
 │   │
-│   ├── models/
-│   │   └── schemas.py           # Data models (SearchResult, Question, Answer)
+│   ├── schemas/
+│   │   └── schemas.py           # Data schemas (SearchResult, Question, Answer)
 │   │
 │   └── utils/
 │       └── exceptions.py        # Custom exception hierarchy
@@ -121,7 +125,7 @@ rag-local/
    ```bash
    python ingest.py
    ```
-   This loads your document from `data/history.txt`, chunks it, and stores embeddings in Neo4j.
+   This loads your document from `resources/history.txt`, chunks it, and stores embeddings in Neo4j.
 
 4. **Run Queries:**
    ```bash
@@ -139,12 +143,22 @@ The RAG system operates in two separate phases:
 ```bash
 python ingest.py
 ```
+
+Supports `--file`/`--directory` for target selection, `--strategy` (`fixed` or `parent_child`), and `--split-method` (`fixed_size`, `title`, `tag`) for chunking control.
+
+```bash
+python ingest.py --file document.pdf                             # Ingest single file
+python ingest.py --directory ./docs                              # Ingest all files in directory
+python ingest.py --strategy parent_child --split-method title    # Parent-child with heading split
+python ingest.py --directory ./docs --no-recursive               # Non-recursive directory scan
+```
+
 Output:
 ```
 📚 RAG Document Ingestion Tool
 ============================================================
 
-📖 Loading document from: data/history.txt
+📖 Loading document from: resources/history.txt
 ✅ Document loaded (125403 characters)
 
 🔄 Ingesting document into vector database...
@@ -216,7 +230,7 @@ Once the system is running, you'll:
   - Generates answer using LLM
 - **`validate_question(question: str) -> Tuple[bool, str]`** - Input validation
 
-### `src/embedding/`
+### `src/models/embedding/`
 - **Base Class:** `EmbedderBase` (abstract)
   - Enables multiple embedding provider implementations
   - `embed(text: str) -> List[float]`
@@ -227,7 +241,7 @@ Once the system is running, you'll:
   - Singleton pattern: `get_embedder()`
   - Backward compatible: `embed_text()` function
 
-### `src/llm/`
+### `src/models/llm/`
 - **Base Class:** `LLMBase` (abstract)
   - Enables multiple LLM provider implementations
   - `generate(context: str, question: str) -> str`
@@ -238,7 +252,17 @@ Once the system is running, you'll:
   - Singleton pattern: `get_llm()`
   - Backward compatible: `generate_answer()` function
 
-### `src/retrieval/database.py`
+### `src/models/vision/`
+- **Base Class:** `VisionModelBase` (abstract)
+  - Enables multiple vision model implementations
+  - `describe(image_path) -> str`
+  - `describe_bytes(image_bytes) -> str`
+- **Implementation:** `OllamaVisionModel`
+  - Uses Ollama LLaVA for image descriptions
+  - Singleton pattern: `get_vision_model()`
+  - Convenience function: `describe_image()`
+
+### `src/db/database.py`
 - **Driver Management:**
   - `get_driver()` - Lazy-loaded Neo4j driver singleton
   - `close_driver()` - Cleanup (registered with atexit)
@@ -246,7 +270,7 @@ Once the system is running, you'll:
   - `vector_index_exists(index_name) -> bool`
   - `create_vector_index(index_name) -> bool` - Idempotent creation
 
-### `src/retrieval/ingestion.py`
+### `src/ingestion/ingestion.py`
 - **`store_processed_chunk(tx, chunk_id, chunk)`** - Store a ProcessedChunk in Neo4j
 - **`ingest_file(file_path, start_id) -> int`** - Ingest a single file via ContentRouter
 - **`ingest_directory(directory, start_id) -> int`** - Ingest all supported files in a directory
@@ -257,7 +281,7 @@ Once the system is running, you'll:
   - Performs vector similarity search
   - Returns top-k chunks with scores (0-1 cosine similarity)
 
-### `src/models/schemas.py`
+### `src/schemas/schemas.py`
 Data models with automatic validation:
 - **`SearchResult`** - Chunk with similarity score
 - **`Question`** - Validated user input (3-1000 chars)
@@ -291,21 +315,24 @@ Custom exception hierarchy:
 ## 📊 Data Flow
 
 ### Ingestion Flow (ingest.py):
+
+Supports `--file`/`--directory` for target selection, `--strategy` (`fixed` or `parent_child`), and `--split-method` (`fixed_size`, `title`, `tag`) for chunking control.
+
 ```
 ingest.py
     ↓
 Load file/directory path from CLI args or DOCUMENT_PATH
     ↓
-ingest_file() / ingest_directory()
+ingest_file() / ingest_directory()          # src/ingestion/
     ↓
 ContentRouter → selects TextProcessor, ImageProcessor, or PDFProcessor
     ↓
 Processor.process() → chunks content into ProcessedChunk objects
     ↓
-create_vector_index() → creates Neo4j vector index (idempotent)
+create_vector_index() → creates Neo4j vector index (idempotent)  # src/db/
     ↓
 for each chunk:
-    embed_text() → OllamaEmbedder.embed() → Ollama API (3 retries)
+    embed_text() → OllamaEmbedder.embed() → Ollama API (3 retries)  # src/models/embedding/
         ↓
     store_processed_chunk() → Neo4j CREATE (Chunk nodes with embeddings)
     ↓
@@ -319,15 +346,15 @@ User: "When did Napoleon invade Russia?"
 validate_question() → checks length, characters, format
     ↓
 rag_pipeline() orchestrates:
-    ├─ embed_text(question) → OllamaEmbedder
+    ├─ embed_text(question) → OllamaEmbedder          # src/models/embedding/
     │   └─ Ollama API (with retry logic)
     │
-    ├─ retrieve(question) → vector_search.py
+    ├─ retrieve(question) → vector_search.py            # src/retrieval/
     │   └─ db.index.vector.queryNodes() with cosine similarity
     │
     ├─ combine_context() → format sources with scores
     │
-    └─ generate_answer(context, question) → OllamaLLM
+    └─ generate_answer(context, question) → OllamaLLM   # src/models/llm/
         └─ Ollama API (with retry logic & 120s timeout)
     ↓
 Answer: "Napoleon invaded Russia in 1812..."
@@ -375,8 +402,8 @@ The system uses abstract base classes for extensibility:
 ### Adding a New Embedder (e.g., OpenAI):
 
 ```python
-# src/embedding/openai.py
-from src.embedding.base import EmbedderBase
+# src/models/embedding/openai.py
+from src.models.embedding.base import EmbedderBase
 
 class OpenAIEmbedder(EmbedderBase):
     def embed(self, text: str) -> List[float]:
@@ -386,14 +413,14 @@ class OpenAIEmbedder(EmbedderBase):
     def get_model_info(self) -> dict:
         return {"provider": "openai", "model": "text-embedding-3"}
 
-# Update src/embedding/__init__.py to export
+# Update src/models/embedding/__init__.py to export
 ```
 
 ### Adding a New LLM (e.g., GPT-4):
 
 ```python
-# src/llm/openai.py
-from src.llm.base import LLMBase
+# src/models/llm/openai.py
+from src.models.llm.base import LLMBase
 
 class OpenAILLM(LLMBase):
     def generate(self, context: str, question: str) -> str:
@@ -403,7 +430,7 @@ class OpenAILLM(LLMBase):
     def get_model_info(self) -> dict:
         return {"provider": "openai", "model": "gpt-4"}
 
-# Update main.py to use new provider
+# Update src/models/llm/__init__.py to export
 ```
 
 **Benefits:**
@@ -485,7 +512,7 @@ except DatabaseError:
 | Issue | Solution |
 |-------|----------|
 | `Connection refused` | Ensure Neo4j is running: `docker-compose up -d` |
-| `history.txt not found` | Create `data/history.txt` with historical content |
+| `history.txt not found` | Create `resources/history.txt` with historical content |
 | `Module not found: requests` | Install dependencies: `pip install -r requirements.txt` |
 | `OLLAMA connection error` | Start Ollama: `ollama serve` (separate terminal) |
 | `Vector index already exists` | The system handles this gracefully (idempotent) |
@@ -637,10 +664,10 @@ All source code uses `src.*` imports for consistency:
 from src.config import OLLAMA_BASE_URL, LLM_TIMEOUT
 from src.logger_config import get_logger
 from src.core.pipeline import rag_pipeline
-from src.embedding.ollama import embed_text
-from src.llm.ollama import generate_answer
-from src.retrieval.database import get_driver
-from src.models.schemas import SearchResult, Answer
+from src.models.embedding.ollama import embed_text
+from src.models.llm.ollama import generate_answer
+from src.db.database import get_driver
+from src.schemas.schemas import SearchResult, Answer
 from src.utils.exceptions import EmbeddingError
 
 logger = get_logger("my_module")

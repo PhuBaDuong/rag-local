@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import List, Dict, Any
 
 from src.processing.base import ProcessorBase, ContentType, ProcessedChunk
-from src.vision.ollama import get_vision_model
+from src.models.vision.ollama import get_vision_model
 from src.utils.exceptions import ProcessingError, VisionError
 from src.logger_config import get_logger
 

@@ -3,7 +3,7 @@
 import requests
 import time
 from typing import List
-from src.embedding.base import EmbedderBase
+from src.models.embedding.base import EmbedderBase
 from src.utils.exceptions import EmbeddingError
 from src.config import OLLAMA_BASE_URL, OLLAMA_EMBEDDING_MODEL, EMBEDDING_TIMEOUT, RETRY_DELAY
 from src.logger_config import get_logger
