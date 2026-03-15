@@ -1,6 +1,6 @@
 """Content processing module for multi-modal ingestion."""
 
-from src.processing.base import ProcessorBase, ContentType, ProcessedChunk
+from src.processing.base import ProcessorBase, ContentType, ProcessedChunk, ChunkStrategy, ParentSplitMethod
 from src.processing.router import ContentRouter
 from src.processing.text import TextProcessor
 from src.processing.image import ImageProcessor
@@ -10,6 +10,8 @@ __all__ = [
     "ProcessorBase",
     "ContentType",
     "ProcessedChunk",
+    "ChunkStrategy",
+    "ParentSplitMethod",
     "ContentRouter",
     "TextProcessor",
     "ImageProcessor",

@@ -75,11 +75,13 @@ class ImageProcessor(ProcessorBase):
         
         return metadata
     
-    def process(self, file_path: Path) -> List[ProcessedChunk]:
+    def process(self, file_path: Path, strategy: str = "fixed", split_method: str = "fixed_size") -> List[ProcessedChunk]:
         """Process an image file and return chunks.
         
         Args:
             file_path: Path to the image file
+            strategy: Chunking strategy (ignored for images — always single chunk)
+            split_method: Parent split method (ignored for images)
             
         Returns:
             List containing a single ProcessedChunk with the image description

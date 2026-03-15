@@ -122,11 +122,18 @@ class ContentRouter:
         mime_type = self.detect_mime_type(file_path)
         return mime_type.lower() in self._processors
     
-    def process_file(self, file_path: Path) -> List[ProcessedChunk]:
+    def process_file(
+        self,
+        file_path: Path,
+        strategy: str = "fixed",
+        split_method: str = "fixed_size",
+    ) -> List[ProcessedChunk]:
         """Process a file using the appropriate processor.
         
         Args:
             file_path: Path to the file to process
+            strategy: "fixed" for flat chunking, "parent_child" for hierarchical
+            split_method: Parent split method — "fixed_size", "title", or "tag"
             
         Returns:
             List of ProcessedChunk objects
@@ -144,7 +151,7 @@ class ContentRouter:
             raise ProcessingError(f"No processor registered for MIME type: {mime_type}")
         
         logger.info(f"Processing {file_path} with {processor.content_type.value} processor")
-        return processor.process(file_path)
+        return processor.process(file_path, strategy=strategy, split_method=split_method)
     
     def get_supported_extensions(self) -> List[str]:
         """Get list of supported file extensions."""

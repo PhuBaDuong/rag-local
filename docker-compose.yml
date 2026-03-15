@@ -3,10 +3,10 @@ services:
     image: neo4j:latest
     container_name: dev-neo4j
     volumes:
-      - ./data:/data
-      - ./logs:/logs
-      - ./config:/config
-      - ./plugins:/plugins
+      - ../rag-db/data:/data
+      - ../rag-db/logs:/logs
+      - ../rag-db/config:/config
+      - ../rag-db/plugins:/plugins
     environment:
       # Replace 'your_password' with a strong password
       NEO4J_AUTH: neo4j/StrongP@ssword!

@@ -35,7 +35,15 @@ VISION_TIMEOUT = int(os.getenv("VISION_TIMEOUT", "120"))  # Vision model timeout
 # ============================================
 CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", "300"))
 CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", "200"))
-DOCUMENT_PATH = os.getenv("DOCUMENT_PATH", "data/history.txt")
+DOCUMENT_PATH = os.getenv("DOCUMENT_PATH", "data/")
+
+# ============================================
+# PARENT-CHILD CHUNKING CONFIGURATION
+# ============================================
+PARENT_CHUNK_SIZE = int(os.getenv("PARENT_CHUNK_SIZE", "1500"))
+PARENT_CHUNK_OVERLAP = int(os.getenv("PARENT_CHUNK_OVERLAP", "200"))
+CHUNKING_STRATEGY = os.getenv("CHUNKING_STRATEGY", "fixed")          # "fixed" or "parent_child"
+PARENT_SPLIT_METHOD = os.getenv("PARENT_SPLIT_METHOD", "fixed_size")  # "fixed_size", "title", or "tag"
 
 # ============================================
 # VECTOR SEARCH CONFIGURATION
