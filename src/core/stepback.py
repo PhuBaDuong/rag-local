@@ -2,42 +2,10 @@
 
 from src.models.llm.ollama import get_llm
 from src.utils.exceptions import LLMError
+from src.core.prompts import STEPBACK_PROMPT
 from src.logger_config import get_logger
 
 logger = get_logger("stepback")
-
-STEPBACK_SYSTEM_PROMPT = """You are an expert at reformulating questions. Your task is to take a specific question and rewrite it as a broader, more general step-back question — one that retrieves foundational context useful for answering the original.
-
-The step-back question should be:
-- More general, but not so broad it loses relevance
-- Focused on background knowledge, principles, or context
-- Easier to answer from general knowledge
-
-If the question is already general, conceptual, or broad enough that stepping back would not add useful context, return the original question unchanged.
-
-Examples:
-Input: "Could the members of The Police perform lawful arrests?"
-Output: "What are the legal powers and occupations of The Police band members?"
-
-Input: "Jan Sindel's was born in what country?"
-Output: "What is Jan Sindel's biographical background?"
-
-Input: "When did Napoleon invade Russia?"
-Output: "What were Napoleon's major military campaigns and strategic ambitions?"
-
-Input: "What is the boiling point of ethanol at high altitude?"
-Output: "How does atmospheric pressure affect the boiling points of liquids?"
-
-Input: "Which React hook should I use to avoid re-renders?"
-Output: "What are React's hooks and how do they manage rendering and performance?"
-
-Input: "What are the main causes of inflation?"
-Output: "What are the main causes of inflation?"
-
-Input: "How does photosynthesis work?"
-Output: "How does photosynthesis work?"
-
-Respond with ONLY the step-back question (or the original question if no step-back is needed), nothing else."""
 
 
 def generate_stepback(question: str) -> str:
@@ -52,7 +20,7 @@ def generate_stepback(question: str) -> str:
     Returns:
         A broader step-back question, or the original question on failure.
     """
-    prompt = f"""{STEPBACK_SYSTEM_PROMPT}
+    prompt = f"""{STEPBACK_PROMPT}
 
 Input: "{question}"
 Output:"""

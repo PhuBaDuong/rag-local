@@ -9,21 +9,13 @@ from typing import Dict, Any, Optional
 from src.models.vision.base import VisionModelBase
 from src.utils.exceptions import VisionError
 from src.config import OLLAMA_BASE_URL, OLLAMA_VISION_MODEL, VISION_TIMEOUT, RETRY_DELAY
+from src.core.prompts import VISION_DESCRIPTION_PROMPT
 from src.logger_config import get_logger
 
 logger = get_logger("vision")
 
 MAX_RETRIES = 3
 MAX_IMAGE_SIZE_MB = 20
-
-# Default prompt for image description
-DEFAULT_PROMPT = """Describe this image in detail. Include:
-1. What objects, people, or elements are visible
-2. Any text visible in the image
-3. The overall context or purpose of the image
-4. If it's a diagram, chart, or technical image, explain its structure and meaning
-
-Be thorough but concise. Focus on information that would be useful for search and retrieval."""
 
 
 class OllamaVisionModel(VisionModelBase):
@@ -128,7 +120,7 @@ class OllamaVisionModel(VisionModelBase):
         
         logger.info(f"Describing image: {image_path}")
         image_base64 = self._encode_image(image_path)
-        return self._generate(image_base64, prompt or DEFAULT_PROMPT)
+        return self._generate(image_base64, prompt or VISION_DESCRIPTION_PROMPT)
     
     def describe_bytes(self, image_bytes: bytes, prompt: Optional[str] = None) -> str:
         """Generate a text description from image bytes."""
@@ -137,7 +129,7 @@ class OllamaVisionModel(VisionModelBase):
         
         logger.debug("Describing image from bytes")
         image_base64 = self._encode_bytes(image_bytes)
-        return self._generate(image_base64, prompt or DEFAULT_PROMPT)
+        return self._generate(image_base64, prompt or VISION_DESCRIPTION_PROMPT)
     
     def get_model_info(self) -> Dict[str, Any]:
         """Get information about the vision model."""

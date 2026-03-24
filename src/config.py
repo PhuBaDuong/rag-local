@@ -50,6 +50,9 @@ PARENT_SPLIT_METHOD = os.getenv("PARENT_SPLIT_METHOD", "fixed_size")  # "fixed_s
 # ============================================
 VECTOR_INDEX_NAME = os.getenv("VECTOR_INDEX_NAME", "chunk_embedding_index")
 SEARCH_TOP_K = int(os.getenv("SEARCH_TOP_K", "5"))
+MAX_RETRIEVAL_RETRIES = int(os.getenv("MAX_RETRIEVAL_RETRIES", "3"))
+MIN_RETRIEVAL_SCORE = float(os.getenv("MIN_RETRIEVAL_SCORE", "0.8"))
+MAX_ANSWER_CRITIQUES = int(os.getenv("MAX_ANSWER_CRITIQUES", "3"))
 
 # ============================================
 # LOGGING CONFIGURATION
