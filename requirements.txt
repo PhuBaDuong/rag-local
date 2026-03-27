@@ -30,6 +30,7 @@ filetype>=1.2.0            # File type detection by content
 # Advanced Logging (alternative to built-in logging)
 # loguru==0.7.2             # More feature-rich logging library
 
-# API Server (if deploying as service)
-# fastapi==0.104.0          # Modern API framework
-# uvicorn==0.24.0           # ASGI server
+# API Server
+fastapi>=0.104.0           # Modern API framework
+uvicorn[standard]>=0.24.0  # ASGI server
+python-multipart>=0.0.6   # File upload support for FastAPI

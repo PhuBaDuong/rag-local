@@ -1,0 +1,60 @@
+### Health Check
+GET http://localhost:8000/api/health
+Accept: application/json
+
+###
+
+### Query — Ask a question
+POST http://localhost:8000/api/query
+Content-Type: application/json
+
+{
+  "question": "What happened during World War II?"
+}
+
+###
+
+### Ingest File — Upload a file
+POST http://localhost:8000/api/ingest/file
+Content-Type: multipart/form-data; boundary=----boundary
+
+------boundary
+Content-Disposition: form-data; name="file"; filename="history.txt"
+Content-Type: text/plain
+
+< ../resources/history.txt
+------boundary
+Content-Disposition: form-data; name="strategy"
+
+fixed
+------boundary
+Content-Disposition: form-data; name="split_method"
+
+fixed_size
+------boundary--
+
+###
+
+### Ingest Directory — Ingest from local path
+POST http://localhost:8000/api/ingest/directory
+Content-Type: application/json
+
+{
+  "path": "resources/",
+  "recursive": true,
+  "strategy": "fixed",
+  "split_method": "fixed_size"
+}
+
+###
+
+### Ingest Directory — Parent-child with title splitting
+POST http://localhost:8000/api/ingest/directory
+Content-Type: application/json
+
+{
+  "path": "resources/",
+  "recursive": true,
+  "strategy": "parent_child",
+  "split_method": "title"
+}
